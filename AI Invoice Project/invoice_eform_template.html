@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice E-Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .form-container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="date"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        .required {
+            color: red;
+        }
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Invoice E-Form</h1>
+        
+        <form id="invoiceForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="vendorName">Vendor Name <span class="required">*</span></label>
+                    <input type="text" id="vendorName" name="Vendor Name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="vendorID">Vendor ID <span class="required">*</span></label>
+                    <input type="text" id="vendorID" name="Vendor ID" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="invoiceNumber">Invoice Number <span class="required">*</span></label>
+                    <input type="text" id="invoiceNumber" name="Invoice Number" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="invoiceDate">Invoice Date <span class="required">*</span></label>
+                    <input type="date" id="invoiceDate" name="Invoice Date" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="invoiceTotal">Invoice Total <span class="required">*</span></label>
+                <input type="number" id="invoiceTotal" name="Invoice Total" step="0.01" min="0" required>
+            </div>
+            
+            <div class="form-group" style="text-align: center; margin-top: 30px;">
+                <button type="submit" class="submit-btn">Submit Invoice</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
