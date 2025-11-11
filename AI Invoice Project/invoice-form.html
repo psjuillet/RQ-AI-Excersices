@@ -22,6 +22,8 @@
             color: #333;
             text-align: center;
             margin-bottom: 30px;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
         }
         .form-group {
             margin-bottom: 20px;
@@ -45,6 +47,7 @@
         input:focus {
             outline: none;
             border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
         }
         .required {
             color: red;
@@ -56,18 +59,43 @@
         .form-row .form-group {
             flex: 1;
         }
-        .submit-btn {
-            background-color: #4CAF50;
-            color: white;
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        .btn {
             padding: 12px 30px;
             border: none;
             border-radius: 4px;
             font-size: 16px;
             cursor: pointer;
             font-weight: bold;
+            transition: background-color 0.3s;
         }
-        .submit-btn:hover {
+        .btn-submit {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-submit:hover {
             background-color: #45a049;
+        }
+        .btn-cancel {
+            background-color: #f44336;
+            color: white;
+        }
+        .btn-cancel:hover {
+            background-color: #da190b;
+        }
+        .btn-reset {
+            background-color: #808080;
+            color: white;
+        }
+        .btn-reset:hover {
+            background-color: #696969;
         }
     </style>
 </head>
@@ -75,7 +103,7 @@
     <div class="form-container">
         <h1>Invoice E-Form</h1>
         
-        <form id="invoiceForm" method="POST">
+        <form method="POST">
             <div class="form-row">
                 <div class="form-group">
                     <label for="vendorName">Vendor Name <span class="required">*</span></label>
@@ -105,8 +133,10 @@
                 <input type="number" id="invoiceTotal" name="OBKey_Invoice_Total_1" step="0.01" min="0" required>
             </div>
             
-            <div class="form-group" style="text-align: center; margin-top: 30px;">
-                <button type="submit" name="OBBtn_Yes" class="submit-btn">Submit Invoice</button>
+            <div class="button-group">
+                <button type="submit" name="OBBtn_Yes" class="btn btn-submit">Submit Invoice</button>
+                <button type="submit" name="OBBtn_Cancel" class="btn btn-cancel">Cancel</button>
+                <button type="reset" class="btn btn-reset">Reset</button>
             </div>
         </form>
     </div>
