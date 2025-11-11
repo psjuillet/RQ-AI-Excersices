@@ -6,22 +6,26 @@
     <title>Invoice E-Form</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 800px;
             margin: 20px auto;
             padding: 20px;
-            background-color: #f5f5f5;
+            background-color: #ffe4f5;
+            color: #5c2e4e;
         }
         .form-container {
-            background-color: white;
+            background-color: #fff0f9;
             padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(255, 182, 193, 0.3);
+            border: 1px solid #ffc0e0;
         }
         h1 {
-            color: #333;
+            color: #d946a6;
             text-align: center;
             margin-bottom: 30px;
+            border-bottom: 2px solid #ff69b4;
+            padding-bottom: 10px;
         }
         .form-group {
             margin-bottom: 20px;
@@ -30,24 +34,27 @@
             display: block;
             font-weight: bold;
             margin-bottom: 5px;
-            color: #555;
+            color: #b8458d;
         }
         input[type="text"],
         input[type="date"],
         input[type="number"] {
             width: 100%;
             padding: 10px;
-            border: 1px solid #ddd;
+            border: 1px solid #ffc0e0;
             border-radius: 4px;
             font-size: 14px;
             box-sizing: border-box;
+            background-color: #fffafd;
+            color: #5c2e4e;
         }
         input:focus {
             outline: none;
-            border-color: #4CAF50;
+            border-color: #ff69b4;
+            box-shadow: 0 0 5px rgba(255, 105, 180, 0.4);
         }
         .required {
-            color: red;
+            color: #e91e63;
         }
         .form-row {
             display: flex;
@@ -57,8 +64,8 @@
             flex: 1;
         }
         .submit-btn {
-            background-color: #4CAF50;
-            color: white;
+            background-color: #e91e63;
+            color: #ffffff;
             padding: 12px 30px;
             border: none;
             border-radius: 4px;
@@ -67,7 +74,7 @@
             font-weight: bold;
         }
         .submit-btn:hover {
-            background-color: #45a049;
+            background-color: #c2185b;
         }
     </style>
 </head>
