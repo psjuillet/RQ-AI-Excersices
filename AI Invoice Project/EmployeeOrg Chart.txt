@@ -740,7 +740,6 @@
         }
 
         function saveNewEmployee() {
-            alert('Save button clicked! Function is running.');
             debugLog('🔵 START: saveNewEmployee() function has been called');
             debugLog('🔵 STEP 1: Getting employee name input value');
             
@@ -755,23 +754,36 @@
 
             debugLog('🔵 STEP 3: Checking for $WVAPI availability...');
             if (typeof $WVAPI !== 'undefined' && $WVAPI.CreateObject) {
-                // Build the parameters object
-                const params = JSON.stringify({
-                    applicationName: APPLICATION_NAME,
-                    className: CLASS_NAME,
-                    status: "active",
-                    values: {
-                        Name: employeeName,
-                        ReportsTo: String(currentEmployee.objectId)
-                    }
-                });
-                
-                debugLog('🔵 STEP 4: CreateObject called with params:', params);
-                $WVAPI.CreateObject(params);
-                closeAddReportModal();
+                try {
+                    // Build the parameters object
+                    const params = JSON.stringify({
+                        applicationName: APPLICATION_NAME,
+                        className: CLASS_NAME,
+                        status: "active",
+                        values: {
+                            Name: employeeName,
+                            ReportsTo: String(currentEmployee.objectId)
+                        }
+                    });
+                    
+                    debugLog('🔵 STEP 4: CreateObject called with params:', params);
+                    
+                    // Call CreateObject and handle response
+                    const result = $WVAPI.CreateObject(params);
+                    debugLog('🟢 CreateObject result:', result);
+                    
+                    // Close modal after successful call
+                    closeAddReportModal();
+                    debugLog('✅ Modal closed successfully');
+                    
+                } catch (error) {
+                    debugLog('🔴 ERROR in CreateObject:', error.message || error);
+                    alert('Error creating employee: ' + (error.message || error));
+                }
             } else {
                 console.error('$WVAPI.CreateObject is not available');
                 debugLog('🔴 Error: $WVAPI.CreateObject is not available');
+                alert('WVAPI is not available. Please ensure you are running this in OnBase.');
             }
         }
 
