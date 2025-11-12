@@ -755,24 +755,29 @@
             debugLog('🔵 STEP 3: Checking for $WVAPI availability...');
             if (typeof $WVAPI !== 'undefined' && $WVAPI.CreateObject) {
                 try {
-                    // Build the parameters object
-                    const params = JSON.stringify({
+                    // Build the parameters - try without the status parameter
+                    const params = {
                         applicationName: APPLICATION_NAME,
                         className: CLASS_NAME,
-                        status: "active",
                         values: {
                             Name: employeeName,
                             ReportsTo: String(currentEmployee.objectId)
                         }
-                    });
+                    };
                     
-                    debugLog('🔵 STEP 4: CreateObject called with params:', params);
+                    const paramsString = JSON.stringify(params);
+                    debugLog('🔵 STEP 4: CreateObject called with params:', paramsString);
                     
                     // Call CreateObject and handle response
-                    const result = $WVAPI.CreateObject(params);
+                    const result = $WVAPI.CreateObject(paramsString);
                     debugLog('🟢 CreateObject result:', result);
                     
-                    // Close modal after successful call
+                    // Check if result indicates success
+                    if (result) {
+                        debugLog('✅ CreateObject returned a result, assuming success');
+                    }
+                    
+                    // Close modal after call
                     closeAddReportModal();
                     debugLog('✅ Modal closed successfully');
                     
