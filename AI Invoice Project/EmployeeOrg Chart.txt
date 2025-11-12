@@ -740,6 +740,7 @@
         }
 
         function saveNewEmployee() {
+            alert('Save button clicked! Function is running.');
             debugLog('🔵 START: saveNewEmployee() function has been called');
             debugLog('🔵 STEP 1: Getting employee name input value');
             
