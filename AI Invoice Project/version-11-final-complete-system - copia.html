@@ -1,0 +1,1089 @@
+<html>
+<head>
+    <!-- Google Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <style>
+        /* Hide the original elements */
+        .EmployeeId,
+        .maintable {
+            display: none;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f2e7ed;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Debug Panel Styling */
+        .debug-toggle {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 18px;
+            z-index: 10000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s;
+        }
+
+        .debug-toggle:hover {
+            background: #555;
+        }
+
+        .debug-panel {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #1e1e1e;
+            color: #f2e7ed;
+            max-height: 300px;
+            overflow-y: auto;
+            border-top: 2px solid #333;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            z-index: 9999;
+            display: none;
+        }
+
+        .debug-panel.visible {
+            display: block;
+        }
+
+        .debug-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #444;
+        }
+
+        .debug-panel-title {
+            font-weight: bold;
+            color: #3959da;
+        }
+
+        .debug-clear-btn {
+            background: #8c1a4a;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .debug-clear-btn:hover {
+            background: #e73c83ff;
+        }
+
+        .debug-entry {
+            margin-bottom: 8px;
+            padding: 8px;
+            background: #252526;
+            border-left: 3px solid #3959da;
+            border-radius: 3px;
+        }
+
+        .debug-timestamp {
+            color: #858585;
+            font-size: 10px;
+        }
+
+        .debug-message {
+            color: #bf819c;
+            margin: 4px 0;
+        }
+
+        .debug-data {
+            color: #c4c4e9;
+            margin-left: 15px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* Org Chart Container */
+        #orgChart {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            width: 100%;
+        }
+
+        /* Employee Box Styling */
+        .employee-box {
+            background: linear-gradient(135deg, #687ddf 0%, #904c62 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            min-width: 200px;
+            max-width: 250px;
+            position: relative;
+            transition: transform 0.3s, box-shadow 0.3s;
+            z-index: 1;
+        }
+
+        .employee-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            z-index: 2001;
+        }
+
+        .employee-box.current-employee {
+            background: linear-gradient(135deg, #ff7ab3 0%, #8c1a4a 100%);
+            border: 3px solid #fff;
+            box-shadow: 0 6px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .employee-box.manager {
+            background: linear-gradient(135deg, #3959da 0%, #96a0e4 100%);
+        }
+
+        .employee-name {
+            font-size: 13.5px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .employee-title {
+            font-size: 10.5px;
+            opacity: 0.9;
+            font-style: italic;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Contact Icon Button */
+        .contact-icon-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-26px);
+            right: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s, transform 0.2s;
+            z-index: 1;
+        }
+
+        .contact-icon-btn:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(-26px) scale(1.1);
+        }
+
+        .contact-icon-btn:active {
+            transform: translateY(-26px) scale(0.95);
+        }
+
+        .contact-icon-btn .material-icons {
+            font-size: 16px;
+        }
+
+        /* Open Employee Button */
+        .open-employee-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(2px);
+            right: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s, transform 0.2s;
+            z-index: 1;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .open-employee-btn:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(2px) scale(1.1);
+        }
+
+        .open-employee-btn:active {
+            transform: translateY(2px) scale(0.95);
+        }
+
+        .open-employee-btn .material-icons {
+            font-size: 16px;
+        }
+
+        /* Group Icon Button */
+        .group-icon-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(30px);
+            right: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s, transform 0.2s;
+            z-index: 1;
+            padding: 0;
+            line-height: 1;
+            color: white;
+        }
+
+        .group-icon-btn:hover {
+            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(30px) scale(1.1);
+        }
+
+        .group-icon-btn:active {
+            transform: translateY(30px) scale(0.95);
+        }
+
+        .group-icon-btn .material-icons {
+            font-size: 16px;
+        }
+
+        /* Reports Count Badge */
+        .reports-count-badge {
+            position: absolute;
+            top: 50%;
+            transform: translateY(30px);
+            right: -14px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+            color: #96a0e4;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Contact Card Styling */
+        .contact-card {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 15px;
+            background: white;
+            color: #333;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            min-width: 300px;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+            text-align: left;
+        }
+
+        .contact-card.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .contact-card::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid white;
+        }
+
+        /* Close button for contact card */
+        .contact-card-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #999;
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            padding: 0;
+            transition: color 0.2s;
+        }
+
+        .contact-card-close:hover {
+            color: #333;
+        }
+
+        .contact-card-header {
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 12px;
+            margin-bottom: 15px;
+        }
+
+        .contact-card-name {
+            font-size: 15px;
+            font-weight: bold;
+            color: #65539e;
+            margin-bottom: 5px;
+        }
+
+        .contact-card-title {
+            font-size: 10.5px;
+            color: #666;
+            font-style: italic;
+        }
+
+        .contact-card-body {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .contact-info-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 10.5px;
+            color: #555;
+        }
+
+        .contact-info-label {
+            font-weight: 600;
+            min-width: 80px;
+            color: #65539e;
+        }
+
+        .contact-info-value {
+            color: #333;
+        }
+
+        .contact-info-icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+        }
+
+        /* Direct Reports Container */
+        .direct-reports {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Connector Lines */
+        .connector {
+            width: 2px;
+            height: 30px;
+            background-color: #65539e;
+            margin: 0 auto;
+        }
+
+        .connector.top {
+            margin-bottom: -10px;
+        }
+
+        .connector.bottom {
+            margin-top: -10px;
+        }
+
+        /* Section Labels */
+        .section-label {
+            color: #666;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        /* Swimlane Sections */
+        .swimlane {
+            width: 100%;
+            padding: 20px;
+            position: relative;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Manager Section */
+        .manager-section {
+            background-color: rgba(79, 172, 254, 0.08);
+            border-bottom: 1px solid rgba(79, 172, 254, 0.2);
+        }
+
+        /* Current Employee Section */
+        .current-section {
+            background-color: rgba(240, 147, 251, 0.08);
+            border-bottom: 1px solid rgba(240, 147, 251, 0.2);
+        }
+
+        /* Reports Section */
+        .reports-section {
+            background-color: rgba(102, 126, 234, 0.08);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        /* Add Direct Report Button */
+        .add-report-btn {
+            position: absolute;
+            left: 150px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(102, 126, 234, 0.3);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s, transform 0.2s;
+            z-index: 10;
+            color: #667eea;
+        }
+
+        .add-report-btn:hover {
+            background: rgba(102, 126, 234, 0.5);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .add-report-btn:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+
+        .add-report-btn .material-icons {
+            font-size: 20px;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.visible {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .modal-body {
+            margin-bottom: 25px;
+        }
+
+        .modal-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .modal-btn:hover {
+            background: #5568d3;
+            transform: scale(1.1);
+        }
+
+        .modal-btn:active {
+            transform: scale(0.95);
+        }
+
+        .modal-btn.cancel {
+            background: #999;
+        }
+
+        .modal-btn.cancel:hover {
+            background: #777;
+        }
+
+        .modal-btn .material-icons {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Debug Toggle Button -->
+    <button class="debug-toggle" onclick="toggleDebugPanel()" title="Toggle Debug Panel">🐛</button>
+    
+    <!-- Debug Panel -->
+    <div id="debugPanel" class="debug-panel">
+        <div class="debug-panel-header">
+            <div class="debug-panel-title">Debug Console</div>
+            <button class="debug-clear-btn" onclick="clearDebugLog()">Clear</button>
+        </div>
+        <div id="debugLog"></div>
+    </div>
+
+    <!-- Hidden data elements -->
+    <div class="EmployeeId"><<EmployeeId>></div>
+    
+    <table class="maintable">
+        <thead>
+            <tr>
+                <th class="h1">Name</th>
+                <th class="h2">EmployeeId</th>
+                <th class="h3">Title</th>
+                <th class="h4">ReportsToName</th>
+                <th class="h5">ReportsToEmployeeId</th>
+                <th class="h6">objectid</th>
+            </tr>
+        </thead>
+        <tbody>
+<<@~Employee - All>>
+            <tr>
+                <td class="c1"><<Name>></td>
+                <td class="c2"><<EmployeeId>></td>
+                <td class="c3"><<Title>></td>
+                <td class="c4"><<ReportsTo.Name>></td>
+                <td class="c5"><<ReportsTo.EmployeeId>></td>
+                <td class="c6"><<objectid>></td>
+            </tr>
+<<@End>>
+        </tbody>
+    </table>
+
+    <!-- Org Chart Display -->
+    <div id="orgChart"></div>
+
+    <!-- Modal for Adding New Direct Report -->
+    <div id="addReportModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">Add New Direct Report</div>
+            <div class="modal-body">
+                <label class="modal-label">Employee Name</label>
+                <input type="text" id="newEmployeeName" class="modal-input" placeholder="Enter employee name">
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn cancel" onclick="closeAddReportModal()" title="Cancel">
+                    <span class="material-icons">close</span>
+                </button>
+                <button id="saveEmployeeBtn" class="modal-btn" onclick="saveNewEmployee()" title="Save">
+                    <span class="material-icons">save</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Debug logger
+        function debugLog(message, data) {
+            const timestamp = new Date().toLocaleTimeString();
+            const debugLogDiv = document.getElementById('debugLog');
+            
+            const entry = document.createElement('div');
+            entry.className = 'debug-entry';
+            
+            const timestampSpan = document.createElement('div');
+            timestampSpan.className = 'debug-timestamp';
+            timestampSpan.textContent = timestamp;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'debug-message';
+            messageDiv.textContent = message;
+            
+            entry.appendChild(timestampSpan);
+            entry.appendChild(messageDiv);
+            
+            if (data !== undefined) {
+                const dataDiv = document.createElement('div');
+                dataDiv.className = 'debug-data';
+                dataDiv.textContent = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+                entry.appendChild(dataDiv);
+            }
+            
+            debugLogDiv.appendChild(entry);
+            debugLogDiv.scrollTop = debugLogDiv.scrollHeight;
+            
+            // Also log to console if available
+            if (console && console.log) {
+                console.log(`[OrgChart Debug] ${message}`, data !== undefined ? data : '');
+            }
+        }
+
+        // Toggle debug panel visibility
+        function toggleDebugPanel() {
+            const panel = document.getElementById('debugPanel');
+            panel.classList.toggle('visible');
+        }
+
+        // Clear debug log
+        function clearDebugLog() {
+            document.getElementById('debugLog').innerHTML = '';
+        }
+
+        // Constants for WVAPI functions
+        const CLASS_ID = 1257;
+        const APPLICATION_NAME = "AI Coding Examples";
+        const CLASS_NAME = "Employee";
+
+        // Modal functions
+        function openAddReportModal() {
+            debugLog('openAddReportModal() called - opening modal');
+            document.getElementById('addReportModal').classList.add('visible');
+            document.getElementById('newEmployeeName').value = '';
+            document.getElementById('newEmployeeName').focus();
+        }
+
+        function closeAddReportModal() {
+            debugLog('closeAddReportModal() called - closing modal');
+            document.getElementById('addReportModal').classList.remove('visible');
+        }
+
+        function saveNewEmployee() {
+            debugLog('🔵 START: saveNewEmployee() function has been called');
+            debugLog('🔵 STEP 1: Getting employee name input value');
+            
+            const employeeName = document.getElementById('newEmployeeName').value.trim();
+            debugLog('🔵 STEP 2: Employee name entered:', employeeName);
+            
+            if (!employeeName) {
+                debugLog('🔴 VALIDATION FAILED: empty employee name');
+                alert('Please enter an employee name');
+                return;
+            }
+
+            debugLog('🔵 STEP 3: Checking for $WVAPI availability...');
+            if (typeof $WVAPI !== 'undefined' && $WVAPI.CreateObject) {
+                try {
+                    // Build the parameters - try without the status parameter
+                    const params = {
+                        applicationName: APPLICATION_NAME,
+                        className: CLASS_NAME,
+                        values: {
+                            Name: employeeName,
+                            ReportsTo: String(currentEmployee.objectId)
+                        }
+                    };
+                    
+                    const paramsString = JSON.stringify(params);
+                    debugLog('🔵 STEP 4: CreateObject called with params:', paramsString);
+                    
+                    // Call CreateObject and handle response
+                    const result = $WVAPI.CreateObject(paramsString);
+                    debugLog('🟢 CreateObject result:', result);
+                    
+                    // Check if result indicates success
+                    if (result) {
+                        debugLog('✅ CreateObject returned a result, assuming success');
+                    }
+                    
+                    // Close modal after call
+                    closeAddReportModal();
+                    debugLog('✅ Modal closed successfully');
+                    
+                } catch (error) {
+                    debugLog('🔴 ERROR in CreateObject:', error.message || error);
+                    alert('Error creating employee: ' + (error.message || error));
+                }
+            } else {
+                console.error('$WVAPI.CreateObject is not available');
+                debugLog('🔴 Error: $WVAPI.CreateObject is not available');
+                alert('WVAPI is not available. Please ensure you are running this in OnBase.');
+            }
+        }
+
+        // Get the current employee ID
+        const currentEmployeeId = document.querySelector('.EmployeeId').textContent.trim();
+
+        // Dynamically parse table headers to get column indices
+        const headers = [];
+        const headerCells = document.querySelectorAll('.maintable thead th');
+        headerCells.forEach((th, index) => {
+            headers.push({
+                name: th.textContent.trim(),
+                index: index
+            });
+        });
+
+        // Helper function to get column index by name
+        function getColumnIndex(columnName) {
+            const header = headers.find(h => h.name === columnName);
+            return header ? header.index : -1;
+        }
+
+        // Get required column indices
+        const nameIndex = getColumnIndex('Name');
+        const employeeIdIndex = getColumnIndex('EmployeeId');
+        const titleIndex = getColumnIndex('Title');
+        const reportsToNameIndex = getColumnIndex('ReportsToName');
+        const reportsToEmployeeIdIndex = getColumnIndex('ReportsToEmployeeId');
+        const objectIdIndex = getColumnIndex('objectid');
+
+        // Parse all employee data from the table
+        const employees = [];
+        const rows = document.querySelectorAll('.maintable tbody tr');
+        
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length > 0 && nameIndex >= 0 && employeeIdIndex >= 0) {
+                const employee = {
+                    name: cells[nameIndex] ? cells[nameIndex].textContent.trim() : '',
+                    employeeId: cells[employeeIdIndex] ? cells[employeeIdIndex].textContent.trim() : '',
+                    title: titleIndex >= 0 && cells[titleIndex] ? cells[titleIndex].textContent.trim() : '',
+                    reportsToName: reportsToNameIndex >= 0 && cells[reportsToNameIndex] ? cells[reportsToNameIndex].textContent.trim() : '',
+                    reportsToEmployeeId: reportsToEmployeeIdIndex >= 0 && cells[reportsToEmployeeIdIndex] ? cells[reportsToEmployeeIdIndex].textContent.trim() : '',
+                    objectId: objectIdIndex >= 0 && cells[objectIdIndex] ? cells[objectIdIndex].textContent.trim() : ''
+                };
+                
+                // Store all additional attributes dynamically
+                employee.additionalAttributes = {};
+                headers.forEach(header => {
+                    if (!['Name', 'EmployeeId', 'Title', 'ReportsToName', 'ReportsToEmployeeId', 'objectid'].includes(header.name)) {
+                        employee.additionalAttributes[header.name] = cells[header.index] ? cells[header.index].textContent.trim() : '';
+                    }
+                });
+                
+                employees.push(employee);
+            }
+        });
+
+        // Find current employee
+        const currentEmployee = employees.find(emp => emp.employeeId === currentEmployeeId);
+
+        // Find manager
+        const manager = currentEmployee ? 
+            employees.find(emp => emp.employeeId === currentEmployee.reportsToEmployeeId) : 
+            null;
+
+        // Find direct reports
+        const directReports = employees.filter(emp => emp.reportsToEmployeeId === currentEmployeeId);
+
+        // Function to create contact card
+        function createContactCard(employee) {
+            const contactCard = document.createElement('div');
+            contactCard.className = 'contact-card';
+            
+            let contactInfoHTML = '';
+            
+            // Add Employee ID
+            if (employee.employeeId) {
+                contactInfoHTML += `
+                    <div class="contact-info-row">
+                        <span class="contact-info-label">Employee ID:</span>
+                        <span class="contact-info-value">${employee.employeeId}</span>
+                    </div>
+                `;
+            }
+            
+            // Add Manager info if exists
+            if (employee.reportsToName) {
+                contactInfoHTML += `
+                    <div class="contact-info-row">
+                        <span class="contact-info-label">Reports To:</span>
+                        <span class="contact-info-value">${employee.reportsToName}</span>
+                    </div>
+                `;
+            }
+            
+            // Add any additional attributes that might be contact-related
+            const contactAttributes = ['Email', 'Phone', 'Department', 'Office', 'Location', 'Extension', 'Mobile'];
+            
+            for (const attr in employee.additionalAttributes) {
+                if (employee.additionalAttributes[attr]) {
+                    // Check if it's a common contact attribute or just include everything
+                    contactInfoHTML += `
+                        <div class="contact-info-row">
+                            <span class="contact-info-label">${attr}:</span>
+                            <span class="contact-info-value">${employee.additionalAttributes[attr]}</span>
+                        </div>
+                    `;
+                }
+            }
+            
+            contactCard.innerHTML = `
+                <button class="contact-card-close" aria-label="Close">&times;</button>
+                <div class="contact-card-header">
+                    <div class="contact-card-name">${employee.name}</div>
+                    <div class="contact-card-title">${employee.title || 'No title'}</div>
+                </div>
+                <div class="contact-card-body">
+                    ${contactInfoHTML || '<div class="contact-info-row"><span class="contact-info-value">No additional information available</span></div>'}
+                </div>
+            `;
+            
+            // Add close button event listener
+            const closeBtn = contactCard.querySelector('.contact-card-close');
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                contactCard.classList.remove('visible');
+            });
+            
+            return contactCard;
+        }
+
+        // Function to create contact icon button
+        function createContactIconButton() {
+            const button = document.createElement('button');
+            button.className = 'contact-icon-btn';
+            button.setAttribute('aria-label', 'View contact information');
+            button.innerHTML = '<span class="material-icons">contact_mail</span>';
+            return button;
+        }
+
+        // Function to create employee box
+        function createEmployeeBox(employee, cssClass = '', reportsCount = 0) {
+            const box = document.createElement('div');
+            box.className = `employee-box ${cssClass}`;
+            
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'employee-name';
+            nameDiv.textContent = employee.name;
+            
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'employee-title';
+            titleDiv.textContent = employee.title;
+            
+            const contactIconBtn = createContactIconButton();
+            const contactCard = createContactCard(employee);
+            
+            // Add click event to contact icon button
+            contactIconBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                // Close any other open contact cards
+                document.querySelectorAll('.contact-card.visible').forEach(card => {
+                    if (card !== contactCard) {
+                        card.classList.remove('visible');
+                    }
+                });
+                // Toggle this contact card
+                contactCard.classList.toggle('visible');
+            });
+            
+            // Close contact card when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!box.contains(e.target)) {
+                    contactCard.classList.remove('visible');
+                }
+            });
+            
+            // Add open button for non-current employees
+            if (cssClass !== 'current-employee') {
+                const openBtn = document.createElement('button');
+                openBtn.className = 'open-employee-btn';
+                openBtn.innerHTML = '<span class="material-icons">open_in_browser</span>';
+                openBtn.title = 'Open Employee Record';
+                openBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (typeof $WVAPI !== 'undefined' && $WVAPI.DisplayObject) {
+                        const params = JSON.stringify({ classId: CLASS_ID.toString(), objectId: employee.objectId.toString() });
+                        debugLog('DisplayObject called with params:', params);
+                        $WVAPI.DisplayObject(params);
+                    } else {
+                        console.error('$WVAPI is not available');
+                    }
+                });
+                box.appendChild(openBtn);
+            }
+            
+            // Add group icon and count badge if employee has direct reports
+            if (reportsCount > 0) {
+                const groupBtn = document.createElement('button');
+                groupBtn.className = 'group-icon-btn';
+                groupBtn.innerHTML = '<span class="material-icons">group</span>';
+                groupBtn.title = `${reportsCount} Direct Report${reportsCount > 1 ? 's' : ''}`;
+                box.appendChild(groupBtn);
+                
+                const countBadge = document.createElement('div');
+                countBadge.className = 'reports-count-badge';
+                countBadge.textContent = reportsCount;
+                box.appendChild(countBadge);
+            }
+            
+            box.appendChild(contactIconBtn);
+            box.appendChild(nameDiv);
+            box.appendChild(contactCard);
+            box.appendChild(titleDiv);
+            
+            return box;
+        }
+
+        // Function to create connector
+        function createConnector(cssClass = '') {
+            const connector = document.createElement('div');
+            connector.className = `connector ${cssClass}`;
+            return connector;
+        }
+
+        // Build the org chart
+        const orgChartContainer = document.getElementById('orgChart');
+
+        // Calculate direct reports count for each employee
+        function getDirectReportsCount(employeeId) {
+            return employees.filter(emp => emp.reportsToEmployeeId === employeeId).length;
+        }
+
+        // Add manager section if exists
+        if (manager && manager.name) {
+            const managerSection = document.createElement('div');
+            managerSection.className = 'manager-section swimlane';
+            
+            // Add "Reports To" label
+            const reportsToLabel = document.createElement('div');
+            reportsToLabel.className = 'section-label';
+            reportsToLabel.textContent = 'Reports To';
+            managerSection.appendChild(reportsToLabel);
+            
+            const managerReportsCount = getDirectReportsCount(manager.employeeId);
+            managerSection.appendChild(createEmployeeBox(manager, 'manager', managerReportsCount));
+            
+            orgChartContainer.appendChild(managerSection);
+        }
+
+        // Add current employee section
+        if (currentEmployee) {
+            const currentSection = document.createElement('div');
+            currentSection.className = 'current-section swimlane';
+            
+            currentSection.appendChild(createEmployeeBox(currentEmployee, 'current-employee', directReports.length));
+            
+            orgChartContainer.appendChild(currentSection);
+        }
+
+        // Add direct reports section if exists
+        if (directReports.length > 0) {
+            const reportsSection = document.createElement('div');
+            reportsSection.className = 'reports-section swimlane';
+            
+            // Add "Direct Reports" label
+            const directReportsLabel = document.createElement('div');
+            directReportsLabel.className = 'section-label';
+            directReportsLabel.textContent = 'Direct Reports';
+            reportsSection.appendChild(directReportsLabel);
+            
+            // Add "Add New Direct Report" button
+            const addReportBtn = document.createElement('button');
+            addReportBtn.className = 'add-report-btn';
+            addReportBtn.innerHTML = '<span class="material-icons">group_add</span>';
+            addReportBtn.title = 'Add New Direct Report';
+            addReportBtn.onclick = openAddReportModal;
+            reportsSection.appendChild(addReportBtn);
+            
+            const reportsContainer = document.createElement('div');
+            reportsContainer.className = 'direct-reports';
+            
+            directReports.forEach(report => {
+                const reportReportsCount = getDirectReportsCount(report.employeeId);
+                reportsContainer.appendChild(createEmployeeBox(report, '', reportReportsCount));
+            });
+            
+            reportsSection.appendChild(reportsContainer);
+            orgChartContainer.appendChild(reportsSection);
+        }
+
+        // Handle case where no current employee found
+        if (!currentEmployee) {
+            orgChartContainer.innerHTML = '<p style="text-align: center; color: #999;">Employee not found</p>';
+        }
+    </script>
+</body>
+</html>
